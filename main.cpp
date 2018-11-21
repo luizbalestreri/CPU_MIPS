@@ -26,10 +26,10 @@ void LerArq(){
 		bitset<32> AUX(linha); //armazena a linha lida na AUX em formato bitset
 		MP[n]=AUX;
 		AUX=0;
-          	n++;
+		n++;
 	}
 
-	for (int j = 0; j < 5; j++){
+	for (int j = 0; j < 6; j++){
 		cout << MP[j]<<endl;
 	}
 	lerarquivo.close();
@@ -37,7 +37,7 @@ void LerArq(){
 
 void CarregarMP(){
     
-	for(int i = 0; i < 5 ;i++){
+	for(int i = 0; i < 6 ;i++){
 		cout << "REG_MP: "<< MP[i] << endl;
 	}
 
@@ -59,7 +59,8 @@ int UlaR(bitset<5> rs, bitset<5> rt, bitset<5> rd, bitset<6> func){
 	case 32: //add
 		{int auxInt= Reg_CPU[rsInt].to_ulong() + Reg_CPU[rtInt].to_ulong(); 
 		bitset<32> auxBit(auxInt);		
-		Reg_CPU[rdInt] = auxBit;}
+		Reg_CPU[rdInt] = auxBit;
+		}
 		break;
 	case 33: //addu
 		{int auxInt= Reg_CPU[rsInt].to_ulong() + Reg_CPU[rtInt].to_ulong(); 
@@ -69,7 +70,8 @@ int UlaR(bitset<5> rs, bitset<5> rt, bitset<5> rd, bitset<6> func){
 	case 34: //sub
 		{int auxInt= Reg_CPU[rsInt].to_ulong() - Reg_CPU[rtInt].to_ulong(); 
 		bitset<32> auxBit(auxInt);		
-		Reg_CPU[rdInt] = auxBit;} 
+		Reg_CPU[rdInt] = auxBit; 
+		}		
 		break;
 	case 35: //subu
 		{int auxInt= Reg_CPU[rsInt].to_ulong() - Reg_CPU[rtInt].to_ulong(); 
@@ -100,15 +102,15 @@ int UlaI(bitset<6> opcode, bitset<5> rs, bitset<5> rt, bitset<16> imm){
 	switch(opcodeInt){
 	case 8: //addi
 		{int auxInt = Reg_CPU[rtInt].to_ulong() + immInt; 
-		bitset<32> auxBit(auxInt);		
+		bitset<32> auxBit = auxInt;		
 		Reg_CPU[rtInt] = auxBit;
-		cout<<auxBit<<endl;}	
+		}	
 		break;
 	case 9: //addiu
 		{int auxInt= Reg_CPU[rtInt].to_ulong() + immInt; 
-		bitset<32> auxBit(auxInt);	 //Conversão nao funcionou	
+		bitset<32> auxBit = auxInt;	
 		Reg_CPU[rtInt] = auxBit;
-		cout<<auxBit<<endl;}
+		}
 		break;
 	case 12: //andi
 		for (int i = 0; i < 32; i++){
@@ -126,8 +128,6 @@ int UlaI(bitset<6> opcode, bitset<5> rs, bitset<5> rt, bitset<16> imm){
 
 void DecodificarMP(){
 
-	int hex1 = 0;
-	int hex2 = 0;
 	int j = 0;
 	for(int i = 26; i < 32; i++) {
 		opcode[j] = Reg_Ir[i];
@@ -177,7 +177,7 @@ void DecodificarMP(){
 		}
 		j = 0;		
 		for(int i = 0; i < 16; i++){
-			rd[j] = Reg_Ir[i];
+			imm[j] = Reg_Ir[i];
 			j++;
 		}
 		UlaI(opcode, rs, rt, imm);
@@ -189,9 +189,14 @@ void DecodificarMP(){
 int main(){
 
  	LerArq();
+	while(PC < 5){	
 	CarregarMP();
 	DecodificarMP();
-
+	}
+	MP[PC] = Reg_CPU [rd.to_ulong()];
+	CarregarMP();
+	PC--;
+	cout<<"Resultado:"<< MP[PC]  <<endl;
 	return 0;
 }
 
