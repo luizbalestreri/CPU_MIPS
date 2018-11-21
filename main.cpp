@@ -49,6 +49,81 @@ void CarregarMP(){
 
 }
 
+int UlaR(bitset<5> rs, bitset<5> rt, bitset<5> rd, bitset<6> func){
+	int funcInt = (int)(func.to_ulong());
+	int rsInt = (int)(rs.to_ulong());
+	int rtInt = (int)(rt.to_ulong());
+	int rdInt = (int)(rd.to_ulong());		
+
+	switch(funcInt){
+	case 32: //add
+		{int auxInt= Reg_CPU[rsInt].to_ulong() + Reg_CPU[rtInt].to_ulong(); 
+		bitset<32> auxBit(auxInt);		
+		Reg_CPU[rdInt] = auxBit;}
+		break;
+	case 33: //addu
+		{int auxInt= Reg_CPU[rsInt].to_ulong() + Reg_CPU[rtInt].to_ulong(); 
+		bitset<32> auxBit(auxInt);		
+		Reg_CPU[rdInt] = auxBit;}
+		break;
+	case 34: //sub
+		{int auxInt= Reg_CPU[rsInt].to_ulong() - Reg_CPU[rtInt].to_ulong(); 
+		bitset<32> auxBit(auxInt);		
+		Reg_CPU[rdInt] = auxBit;} 
+		break;
+	case 35: //subu
+		{int auxInt= Reg_CPU[rsInt].to_ulong() - Reg_CPU[rtInt].to_ulong(); 
+		bitset<32> auxBit(auxInt);		
+		Reg_CPU[rdInt] = auxBit;} 
+		break;
+	case 36: //0x24 and
+		for (int i = 0; i < 32; i++){
+			Reg_CPU[rdInt][i] = (Reg_CPU[rsInt][i] == Reg_CPU[rtInt][i]);		
+		}
+		break;
+	case 37: //0x25 or
+		for (int i = 0; i < 32; i++){
+			Reg_CPU[rdInt][i] = ((Reg_CPU[rsInt][i] || Reg_CPU[rtInt][i]) == 1);			
+		}
+		break;
+	}
+	return 0;
+}
+
+int UlaI(bitset<6> opcode, bitset<5> rs, bitset<5> rt, bitset<16> imm){
+	
+	int opcodeInt = (int)(opcode.to_ulong());	
+	int immInt = (int)(imm.to_ulong());
+	int rsInt = (int)(rs.to_ulong());
+	int rtInt = (int)(rt.to_ulong());
+
+	switch(opcodeInt){
+	case 8: //addi
+		{int auxInt = Reg_CPU[rtInt].to_ulong() + immInt; 
+		bitset<32> auxBit(auxInt);		
+		Reg_CPU[rtInt] = auxBit;
+		cout<<auxBit<<endl;}	
+		break;
+	case 9: //addiu
+		{int auxInt= Reg_CPU[rtInt].to_ulong() + immInt; 
+		bitset<32> auxBit(auxInt);	 //Conversão nao funcionou	
+		Reg_CPU[rtInt] = auxBit;
+		cout<<auxBit<<endl;}
+		break;
+	case 12: //andi
+		for (int i = 0; i < 32; i++){
+			Reg_CPU[rtInt][i] = (Reg_CPU[rsInt][i] == imm[i]);		
+		}
+		break;
+	case 13: //ori
+		for (int i = 0; i < 32; i++){
+			Reg_CPU[rtInt][i] = ((Reg_CPU[rsInt][i] || imm[i]) == 1);			
+		}
+		break;	
+	return 0;
+	}
+}
+
 void DecodificarMP(){
 
 	int hex1 = 0;
@@ -58,97 +133,57 @@ void DecodificarMP(){
 		opcode[j] = Reg_Ir[i];
 		j++;
 	}
-	j = 0;
+	
+
 	if (opcode.to_ulong() == 0){ //se for do tipo R
+		j = 0;		
 		for(int i = 0; i < 6; i++){
 			func[j] = Reg_Ir[i];
 			j++;
 		}
 		j = 0;
-		for(int i = 21; i < 26; i++{
+		for(int i = 21; i < 26; i++){
 			rs[j] = Reg_Ir[i];
 			j++;
 		}
 		j = 0;
-		for(int i = 16; i < 21; i++{
+		for(int i = 16; i < 21; i++){
 			rt[j] = Reg_Ir[i];
 			j++;
 		}
 		j = 0;		
-		for(int i = 11; i < 16; i++{
+		for(int i = 11; i < 16; i++){
 			rd[j] = Reg_Ir[i];
 			j++;
 		}
 		j = 0;		
-		for(int i = 6; i < 11; i++{
+		for(int i = 6; i < 11; i++){
 			shamt[j] = Reg_Ir[i];
 			j++;
 		}
+		UlaR(rs, rt, rd, func);
 	}
-}
 
-int Ula(bitset<5> rs, bitset<5> rt, bitset<5> rd, bitset<6> func){
-	int funcInt = (int)(func.to_ulong());
-	int rsInt = (int)(rs.to_ulong());
-	int rtInt = (int)(rt.to_ulong());
-	int rdInt = (int)(rd.to_ulong());		
+	else if (opcode.to_ulong() > 3){ //se for do tipo I
+		j = 0;
+		for(int i = 21; i < 26; i++){
+			rs[j] = Reg_Ir[i];
+			j++;
+		}
+		j = 0;
+		for(int i = 16; i < 21; i++){
+			rt[j] = Reg_Ir[i];
+			j++;
+		}
+		j = 0;		
+		for(int i = 0; i < 16; i++){
+			rd[j] = Reg_Ir[i];
+			j++;
+		}
+		UlaI(opcode, rs, rt, imm);
 
-		switch(func.to_ulong()){
-		case 2:
-			break;
-		case 3:
-			break;
-		case 8:
-			break;
-		case 9:
-			break;		
-/*		case 16:
-			break;
-		case 17:
-			break;
-		case 18:
-			break;
-		case 19:
-			break;*/
-		case 20:
-			break;
-		case 21:
-			break;
-		case 22:
-			break;
-		case 23:
-			break;
-		case 24:
-			break;
-		case 25:
-			break;
-		case 26:
-			break;
-		case 27:
-			break;
-		case 28:
-			break;
-		case 29:
-			break;
-		case 30:
-		
-			break;		
-		case 31:
-			break;
-		case 32: //add
-			Reg_CPU[rdInt] = Reg_CPU[rsInt] + Reg_CPU[rtInt]; 
-			break;
- 		case 33: //addu
-			Reg_CPU[rdInt] = Reg_CPU[rsInt] + Reg_CPU[rtInt];
-			break;
-		case 33:
-			Reg_CPU[rdInt] = Reg_CPU[rsInt] - Reg_CPU[rtInt]; 
-			break;
-		case 34:
-			Reg_CPU[rdInt] = Reg_CPU[rsInt] - Reg_CPU[rtInt]; 
-			break;
 	}
-return 0;
+
 }
 
 int main(){
@@ -156,15 +191,7 @@ int main(){
  	LerArq();
 	CarregarMP();
 	DecodificarMP();
-CarregarMP();
-	DecodificarMP();
-CarregarMP();
-	DecodificarMP();
 
-CarregarMP();
-	DecodificarMP();
-CarregarMP();
-	DecodificarMP();
 	return 0;
 }
 
