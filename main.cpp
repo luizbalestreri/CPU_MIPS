@@ -135,8 +135,8 @@ void DecodificarMP(){
 		opcode[j] = Reg_Ir[i];
 		j++;
 	}
-	
-
+	//cout<<sizeof(opcode)<<endl;
+	//cout<<sizeof(MP)<<endl;
 	if (opcode == 0b000000){ //se for do tipo R preenchemos: func, rs, rt, rd e shamt
 		j = 0;		
 		for(int i = 0; i < 6; i++){
@@ -189,16 +189,21 @@ void DecodificarMP(){
 }
 
 int main(){
-
  	LerArq(); // le arquivo txt e passa as isntruções para MP
 	while(PC < 5){	 // le as 5 primeiras instruções da MP
 	CarregarMP();
 	DecodificarMP();
 	}
-	MP[PC] = Reg_CPU [rd.to_ulong()]; //carrega o resultado no ultimo indice
+	if (opcode.to_ulong() > 3)
+	{MP[PC] = Reg_CPU [rt.to_ulong()]; }//carrega o resultado no ultimo indice
+	else if (opcode == 0b000000)
+	{MP[PC] = Reg_CPU [rd.to_ulong()]; }
 	CarregarMP(); //le mais uma vez as MP
 	PC--; //volta ao indice 6
 	cout<<"Resultado:"<< MP[PC]  <<endl; //exibe o resultado
+	for (int i = 0; i < 32; i++){
+	cout<<i<<" "<<Reg_CPU[i]<<endl;	
+	}	
 	return 0;
 }
 
